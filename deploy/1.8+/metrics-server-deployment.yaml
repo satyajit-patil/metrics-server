@@ -13,6 +13,7 @@ metadata:
   labels:
     k8s-app: metrics-server
 spec:
+  replicas: 1
   selector:
     matchLabels:
       k8s-app: metrics-server
@@ -28,11 +29,15 @@ spec:
       - name: tmp-dir
         emptyDir: {}
       containers:
-      - name: metrics-server
-        image: k8s.gcr.io/metrics-server-amd64:v0.3.6
+      - command:
+        - /metrics-server
+        - --kubelet-preferred-address-types=InternalIP
+        - --kubelet-insecure-tls=true
         args:
           - --cert-dir=/tmp
           - --secure-port=4443
+        image: k8s.gcr.io/metrics-server-amd64:v0.3.6
+        name: metrics-server
         ports:
         - name: main-port
           containerPort: 4443
